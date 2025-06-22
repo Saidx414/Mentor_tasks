@@ -1,0 +1,16 @@
+Цель: Вывести список клиентов и общую сумму, которую они потратили во всех заказах. Показать только тех клиентов, у кого сумма покупок больше 5000.
+Ожидаемый результат: Таблица с колонками name, total_spent, где total_spent — это сумма (цена × количество) всех товаров во всех заказах клиента. 
+Должны отображаться только клиенты, у которых total_spent > 5000.
+
+
+SELECT customers.name, SUM(order_items.price * order_items.quantity) AS total_spent
+FROM customers
+JOIN orders ON customers.id = orders.customer_id
+JOIN order_items ON order_items.order_id = orders.id
+GROUP BY customers.id, customers.name
+HAVING SUM(order_items.price * order_items.quantity) > 5000
+
+"name","total_spent"
+"Иван Иванов","532577487.23"
+"Саид Саидов","269181988.47"
+"Максим Максимов","274511865912.42"
