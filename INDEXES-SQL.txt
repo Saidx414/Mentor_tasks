@@ -1,0 +1,60 @@
+Этап 2
+Требования:
+Создать следующие индексы:
+
+По полю customer_id в таблице orders;
+Композитный индекс по (order_id, price) в таблице order_items;
+Индекс по product_name в таблице order_items (если предполагается частый поиск по названию товара).
+
+Индексы уже создал раннее, поэтому вывод там, что индексы уже существуют.
+
+CREATE INDEX idx_orders_customer_id ON orders(customer_id)
+
+CREATE INDEX idx_order_items_order_id_price ON order_items(order_id, price)
+
+CREATE INDEX idx_order_items_product_name ON order_items(product_name)
+
+---------------------------------------------------------------------------------
+Этап 3
+Требования:
+Написать EXPLAIN ANALYZE для запроса, который ищет:
+
+Все товары с price > 10000 из заказа с ID = 123.
+Все заказы клиента с customer_id = 1.
+
+Ожидаемый результат:
+План выполнения показывает использование соответствующего индекса (например, Index Scan по order_items(order_id, price)).
+При необходимости внести корректировки в индексы.
+
+---------------------------------------------------------------------------------
+EXPLAIN ANALYZE
+SELECT product_name, quantity, price
+FROM order_items
+WHERE order_id = 123 AND price > 10000
+
+
+"QUERY PLAN"
+"Bitmap Heap Scan on order_items  (cost=45.63..2957.64 rows=898 width=26) (actual time=0.669..2.918 rows=908 loops=1)"
+"  Recheck Cond: ((order_id = 123) AND (price > '10000'::numeric))"
+"  Heap Blocks: exact=907"
+"  ->  Bitmap Index Scan on idx_order_items_order_id_price  (cost=0.00..45.41 rows=898 width=0) (actual time=0.381..0.382 rows=908 loops=1)"
+"        Index Cond: ((order_id = 123) AND (price > '10000'::numeric))"
+"Planning Time: 0.248 ms"
+"Execution Time: 3.025 ms"
+
+---------------------------------------------------------------------------------
+EXPLAIN ANALYZE
+SELECT id, order_date
+FROM orders
+WHERE customer_id = 1
+
+"QUERY PLAN"
+"Index Scan using idx_orders_customer_id on orders  (cost=0.15..8.19 rows=2 width=8) (actual time=0.152..0.233 rows=3 loops=1)"
+"  Index Cond: (customer_id = 1)"
+"Planning Time: 2.531 ms"
+"Execution Time: 0.271 ms"
+
+
+
+
+
