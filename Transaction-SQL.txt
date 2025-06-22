@@ -1,0 +1,29 @@
+DO $$
+DECLARE
+    order_id INT;
+BEGIN
+    BEGIN
+        INSERT INTO orders (order_date)
+        VALUES (CURRENT_DATE)
+        RETURNING id INTO order_id;
+
+        INSERT INTO order_items (order_id, product_id, product_name, quantity)
+        VALUES
+            (order_id, 1, 'Товар ПЕРВЫЙ', 2),
+            (order_id, 2, 'Товар ВТОРОЙ', 1),
+            (order_id, 3, NULL, 4);
+
+        RAISE NOTICE 'Заказ успешно оформлен. ID = %', order_id;
+
+    EXCEPTION
+        WHEN OTHERS THEN
+            RAISE NOTICE 'Ошибка: %, откат транзакции', SQLERRM;
+            ROLLBACK;
+    END;
+END $$;
+-------------------------------------
+ЗАМЕЧАНИЕ:  Ошибка: значение NULL в столбце "customer_id" отношения "orders" нарушает ограничение NOT NULL, откат транзакции
+DO
+
+Query returned successfully in 67 msec.
+
